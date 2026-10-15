@@ -65,3 +65,10 @@ Use an **open (CC0 / public domain / CC-BY) illustration or draw your own SVG**.
 
 ## Definition of done for a PR
 Builds in CI, tests pass (i18n key parity, selection state, favorites, share encode/decode), no hardcoded strings, touch targets verified at 360px width, README/docs updated if behavior changed.
+
+## Status (after the Milestone 1 PR)
+Everything in scope above is implemented. For the next agent:
+- **Muscle ids are part of the saved/shared data format** (`mm.selection`, `mm.favorites`, `#v1=` links). Renaming or removing an id breaks old favorites and links. Add new muscles freely; if you must change the format, bump the schema/share version and keep a decoder for the old one.
+- Hands and feet exist on both views and have distinct ids (`hand-front-l`, `hand-back-l`, `foot-front-l`, `foot-back-l`).
+- Sharing is limited by QR capacity. `src/share/qr.ts` warns above QR version 22.
+- Possible follow-ups (open issues, don't fold them into unrelated work): native-speaker review of `zh.json`; an artist or open-licensed anatomy upgrade; soles of feet and scalp; an in-app way to import a shared plan as a favorite; Playwright end-to-end tests in CI.
