@@ -4,7 +4,7 @@ A mobile- and tablet-first, touch-first web app for telling a masseuse exactly w
 
 ## Status
 
-Pre-alpha. Only the project scaffold and the scope for Milestone 1 exist. See [docs/MILESTONE-1.md](docs/MILESTONE-1.md) for scope and acceptance criteria and [docs/HANDOFF.md](docs/HANDOFF.md) for guidance to contributors and coding agents.
+Pre-alpha. Only the project scaffold and the scope for Milestone 1 exist. Milestone 1 covers the body map, intensity and duration, English/Chinese, the summary card, favorites, injury/pressure notes, and a read-only share link or QR code (no timer, no backend). See [docs/MILESTONE-1.md](docs/MILESTONE-1.md) for scope and acceptance criteria and [docs/HANDOFF.md](docs/HANDOFF.md) for guidance to contributors and coding agents.
 
 ## Stack and rationale
 
