@@ -56,7 +56,7 @@ npm run build     # type-check (tsc, strict) and produce a static build in dist/
 npm run preview   # serve the production build locally
 ```
 
-**CI:** the workflow (`npm ci`, `npm run build`, `npm test` on every pull request and on pushes to `main`) is in [docs/ci/ci.yml](docs/ci/ci.yml). It still has to be copied to `.github/workflows/ci.yml`, because the token used to open the Milestone 1 PR was not allowed to create workflow files. Run `mkdir -p .github/workflows && cp docs/ci/ci.yml .github/workflows/ci.yml` and push with an account that has the `workflow` scope.
+**CI:** the workflow ([.github/workflows/ci.yml](.github/workflows/ci.yml): `npm ci`, `npm run build`, `npm test`) runs on every pull request and on pushes to `main`.
 
 The built `dist/` folder is a plain static site (relative asset paths), so it can be dropped on GitHub Pages, Netlify, Cloudflare Pages or any file host. Share links use the URL fragment, so no server-side routing is needed.
 
