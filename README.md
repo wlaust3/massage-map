@@ -4,6 +4,8 @@ A mobile- and tablet-first, touch-first web app for telling a masseuse exactly w
 
 ## Status
 
+**Live app:** https://wlaust3.github.io/massage-map/ (deployed from `main` to GitHub Pages by `.github/workflows/pages.yml`; the build uses a relative `base: './'`, so it works under the `/massage-map/` subpath and share-link hashes still resolve).
+
 **Milestone 1 is implemented** (see [docs/MILESTONE-1.md](docs/MILESTONE-1.md) and [issue #1](https://github.com/wlaust3/massage-map/issues/1)):
 
 - Front/back muscular body map (inline SVG): tap muscles one by one or pick whole areas (neck, shoulders, chest, belly, upper back, lower back, arms, hands, hips, legs, feet). Pinch-zoom, pan, swipe and a Front/Back toggle. Forgiving touch targets, fill + outline selection feedback, no hover needed.
