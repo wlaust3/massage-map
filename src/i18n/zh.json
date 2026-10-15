@@ -1,0 +1,16 @@
+{
+  "app.title": "按摩地图",
+  "app.tagline": "点你想按的地方，再选力度和时间。",
+  "lang.toggle": "English",
+  "view.front": "正面",
+  "view.back": "背面",
+  "intensity.light": "轻",
+  "intensity.medium": "中",
+  "intensity.firm": "重",
+  "intensity.deep": "很重",
+  "duration.15": "15 分钟",
+  "duration.30": "30 分钟",
+  "duration.45": "45 分钟",
+  "duration.60": "60 分钟",
+  "summary.title": "按摩要求"
+}

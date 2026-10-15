@@ -1,0 +1,16 @@
+{
+  "app.title": "Massage Map",
+  "app.tagline": "Tap where you want massage, then choose how firm and how long.",
+  "lang.toggle": "中文",
+  "view.front": "Front",
+  "view.back": "Back",
+  "intensity.light": "Light",
+  "intensity.medium": "Medium",
+  "intensity.firm": "Firm",
+  "intensity.deep": "Deep",
+  "duration.15": "15 min",
+  "duration.30": "30 min",
+  "duration.45": "45 min",
+  "duration.60": "60 min",
+  "summary.title": "Massage plan"
+}
