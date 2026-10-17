@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DETAILS, SILHOUETTE_CENTER, SILHOUETTE_HALF, VIEWBOX, mirrorPath } from '../../assets/anatomy/shapes';
+import { ART_URL } from '../../assets/anatomy/art';
+import { ART_SIZE } from '../../assets/anatomy/musclePaths';
 import { musclesInView, type Muscle, type View } from '../../data/muscles';
 import { useI18n } from '../../i18n';
 import {
@@ -40,8 +41,6 @@ interface Shape {
   area: number;
 }
 
-const SILHOUETTE = [...SILHOUETTE_HALF, ...SILHOUETTE_HALF.map(mirrorPath), ...SILHOUETTE_CENTER];
-
 export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = false }: Props) {
   const { t } = useI18n();
   const muscles = useMemo(() => musclesInView(view), [view]);
@@ -51,8 +50,8 @@ export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = fals
   const [tf, setTf] = useState<Transform>(IDENTITY);
   const tfRef = useRef(tf);
   tfRef.current = tf;
-  const W = VIEWBOX.width;
-  const H = VIEWBOX.height;
+  const W = ART_SIZE[view].width;
+  const H = ART_SIZE[view].height;
 
   // Outline samples for nearest-muscle hit testing. Computed lazily on the first tap of a view (not at startup),
   // so loading the page stays fast.
@@ -237,35 +236,25 @@ export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = fals
           className="map-svg"
         >
           <g aria-hidden="true">
-            <text x="6" y="16" className="map-side">
+            <text x="3" y="10" className="map-side">
               {t(`side.${leftHalfSide}.short`)}
             </text>
-            <text x={W - 6} y="16" textAnchor="end" className="map-side">
+            <text x={W - 3} y="10" textAnchor="end" className="map-side">
               {t(`side.${leftHalfSide === 'l' ? 'r' : 'l'}.short`)}
             </text>
           </g>
           <g transform={`translate(${clamped.tx} ${clamped.ty}) scale(${clamped.s})`}>
-            <g aria-hidden="true">
-              <g className="body-outline">
-                {SILHOUETTE.map((d, i) => (
-                  <path key={i} d={d} />
-                ))}
-              </g>
-              <g className="body-fill">
-                {SILHOUETTE.map((d, i) => (
-                  <path key={i} d={d} />
-                ))}
-              </g>
-            </g>
+            <image href={ART_URL[view]} width={W} height={H} aria-hidden="true" />
             {muscles.map((m) => {
               const isSel = selected.has(m.id);
+              const d = m.paths[view]!;
               const name = t('muscle.withSide', { name: t(m.nameKey), side: t(`side.${m.side}`) });
               const common = {
                 className: `muscle${isSel ? ' is-selected' : ''}${avoid?.has(m.id) ? ' is-avoid' : ''}`,
               };
               return readOnly ? (
                 <g key={m.id} {...common} aria-hidden="true">
-                  <path d={m.path} className="shape" />
+                  <path d={d} className="shape" />
                 </g>
               ) : (
                 <g
@@ -282,7 +271,7 @@ export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = fals
                   }}
                 >
                   <path
-                    d={m.path}
+                    d={d}
                     className="shape"
                     ref={(el) => {
                       if (el) pathRefs.current.set(m.id, el);
@@ -292,14 +281,12 @@ export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = fals
                 </g>
               );
             })}
-            <g className="details" aria-hidden="true">
-              {DETAILS[view].map((d) => (
-                <path key={d} d={d} />
-              ))}
-            </g>
           </g>
         </svg>
       </div>
+      <a className="art-credit" href="https://commons.wikimedia.org/wiki/File:Muscles_front_and_back.svg" target="_blank" rel="noreferrer">
+        {t('map.artCredit')}
+      </a>
       {!readOnly && (
         <div className="zoom-controls">
           <button type="button" className="icon-btn" onClick={() => zoomBy(1.4)} aria-label={t('map.zoomIn')} disabled={clamped.s >= MAX_SCALE - 0.01}>

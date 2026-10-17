@@ -1,8 +1,8 @@
 import LZString from 'lz-string';
 import { DURATIONS, INTENSITIES, NOTE_MAX } from '../data/options';
-import { MUSCLES, MUSCLE_BY_ID } from '../data/muscles';
+import { MUSCLES, MUSCLE_BY_ID, resolveMuscleId } from '../data/muscles';
 import { isLang, type Lang } from '../i18n';
-import { isSelected, noteLength, selectedIds, type Selection } from '../state/selection';
+import { noteLength, selectedIds, type Selection } from '../state/selection';
 
 /**
  * Share payload (version 2), before compression:
@@ -79,12 +79,15 @@ export function decodePlan(data: string, expectVersion: number = SHARE_VERSION):
   if (!isLang(lang) || !Array.isArray(items)) return { ok: false, error: 'invalid' };
   if (items.length > MUSCLES.length) return { ok: false, error: 'invalid' };
   const selection: Selection = {};
+  const exact = new Set<string>();
   for (const row of items as unknown[]) {
     if (!Array.isArray(row) || row.length < 3 || row.length > 4) return { ok: false, error: 'invalid' };
     const [id, ii, dur, note = ''] = row as [unknown, unknown, unknown, unknown];
-    if (typeof id !== 'string' || !MUSCLE_BY_ID.has(id) || isSelected(selection, id)) {
-      return { ok: false, error: 'invalid' };
-    }
+    // links made before the anatomical figure use older ids; those expand to the muscles covering the same area
+    const ids = typeof id === 'string' ? resolveMuscleId(id) : [];
+    const isExact = MUSCLE_BY_ID.has(id as string);
+    if (ids.length === 0 || (isExact && exact.has(id as string))) return { ok: false, error: 'invalid' };
+    if (isExact) exact.add(id as string);
     if (typeof ii !== 'number' || !Number.isInteger(ii) || ii < 0 || ii >= INTENSITIES.length) {
       return { ok: false, error: 'invalid' };
     }
@@ -99,7 +102,9 @@ export function decodePlan(data: string, expectVersion: number = SHARE_VERSION):
       duration = DURATIONS[dur];
     }
     if (typeof note !== 'string' || noteLength(note) > NOTE_MAX) return { ok: false, error: 'invalid' };
-    selection[id] = { intensity: INTENSITIES[ii], duration, note };
+    for (const x of ids) {
+      if (!exact.has(x) || x === id) selection[x] = { intensity: INTENSITIES[ii], duration, note };
+    }
   }
   if (items.length === 0) return { ok: false, error: 'empty' };
   return { ok: true, lang, selection };

@@ -7,7 +7,7 @@ import { ShareSheet } from './components/ShareSheet/ShareSheet';
 import { SharedError, SharedView } from './components/SharedView/SharedView';
 import { FullscreenSummary } from './components/SummaryCard/FullscreenSummary';
 import { SummaryCard } from './components/SummaryCard/SummaryCard';
-import { muscleLabel } from './components/common/labels';
+import { muscleLabel, musclePlain } from './components/common/labels';
 import { MUSCLE_BY_ID, regionsInView, type View } from './data/muscles';
 import { REGION_IDS, regionNameKey, type RegionId } from './data/regions';
 import { LanguageProvider, useI18n } from './i18n';
@@ -50,7 +50,7 @@ function Planner() {
 
   const onTap = (id: string | null) => {
     if (!id || !MUSCLE_BY_ID.has(id)) return setMessage(t('map.nothingHere'));
-    const name = muscleLabel(t, id);
+    const name = `${muscleLabel(t, id)} · ${musclePlain(t, id)}`;
     setMessage(t(isSelected(selection, id) ? 'map.removed' : 'map.selected', { name }));
     dispatch({ type: 'toggle', id });
   };

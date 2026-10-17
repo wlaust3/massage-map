@@ -30,6 +30,7 @@ describe('i18n parity', () => {
   it('every muscle, region, intensity and duration has a label in both languages', () => {
     const keys = [
       ...MUSCLE_BASES.map((b) => `muscle.${b}`),
+      ...MUSCLE_BASES.map((b) => `muscle.${b}.plain`),
       ...REGION_IDS.map((r) => `region.${r}`),
       ...INTENSITIES.map((i) => `intensity.${i}`),
       ...DURATIONS.map((d) => `duration.${d}`),

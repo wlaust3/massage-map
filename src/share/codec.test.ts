@@ -7,9 +7,9 @@ import { MUSCLES } from '../data/muscles';
 
 const sample = (): Selection => {
   let s = toggleRegion({}, 'upper-back', 'back');
-  s = toggleMuscle(s, 'quadriceps-l');
-  s = updateEntry(s, 'quadriceps-l', { intensity: 'deep', duration: 'extra', note: '这里别按，有旧伤 <b>"quote"</b> & 😀\nline 2' });
-  s = updateEntry(s, 'rhomboids-l', { intensity: 'light', duration: 'none' });
+  s = toggleMuscle(s, 'rectus-femoris-l');
+  s = updateEntry(s, 'rectus-femoris-l', { intensity: 'deep', duration: 'extra', note: '这里别按，有旧伤 <b>"quote"</b> & 😀\nline 2' });
+  s = updateEntry(s, 'rhomboid-major-l', { intensity: 'light', duration: 'none' });
   return s;
 };
 
@@ -37,10 +37,10 @@ describe('share codec', () => {
   it('uses only URL-safe characters and is compact', () => {
     const hash = encodeHash(sample(), 'en');
     expect(hash).toMatch(/^#v2=[A-Za-z0-9+\-$]+$/);
-    // every muscle selected, no notes: still well under a scannable QR size
+    // every one of the 100+ muscles selected, no notes: still fits a (dense) QR code
     const all: Selection = {};
     for (const m of MUSCLES) all[m.id] = { intensity: 'firm', duration: 'less', note: '' };
-    expect(encodeHash(all, 'en').length).toBeLessThan(1200);
+    expect(encodeHash(all, 'en').length).toBeLessThan(1500);
   });
 
   it('keeps a plan with a note on every muscle decodable (large but valid)', () => {
@@ -76,32 +76,40 @@ describe('share codec', () => {
     });
     it('rejects unknown versions', () => {
       expect(bad('#v3=abc')).toBe('unsupported-version');
-      expect(bad(wrap([1, 'en', [['hand-front-l', 0, 2]]]))).toBe('unsupported-version'); // payload/hash version mismatch
+      expect(bad(wrap([1, 'en', [['thenar-l', 0, 2]]]))).toBe('unsupported-version'); // payload/hash version mismatch
     });
     it('rejects oversized links before decompressing', () => {
       expect(bad('#v1=' + 'A'.repeat(MAX_ENCODED_LENGTH + 1))).toBe('too-large');
     });
     it('rejects decompression bombs', () => {
-      const r = decodePlan(LZString.compressToEncodedURIComponent(JSON.stringify([2, 'en', [['hand-front-l', 0, 2, 'x'.repeat(200000)]]])));
+      const r = decodePlan(LZString.compressToEncodedURIComponent(JSON.stringify([2, 'en', [['thenar-l', 0, 2, 'x'.repeat(200000)]]])));
       expect(r.ok).toBe(false);
     });
     it('validates the structure strictly', () => {
       expect(bad(wrap({ a: 1 }))).toBe('invalid');
-      expect(bad(wrap([2, 'fr', [['hand-front-l', 0, 2]]]))).toBe('invalid');
+      expect(bad(wrap([2, 'fr', [['thenar-l', 0, 2]]]))).toBe('invalid');
       expect(bad(wrap([2, 'en', 'nope']))).toBe('invalid');
       expect(bad(wrap([2, 'en', [['fake-l', 0, 2]]]))).toBe('invalid');
-      expect(bad(wrap([2, 'en', [['hand-front-l', 7, 2]]]))).toBe('invalid');
-      expect(bad(wrap([2, 'en', [['hand-front-l', 0, 4]]]))).toBe('invalid');
-      expect(bad(wrap([2, 'en', [['hand-front-l', 0, 2, 123]]]))).toBe('invalid');
-      expect(bad(wrap([2, 'en', [['hand-front-l', 0, 2, 'x'.repeat(201)]]]))).toBe('invalid');
-      expect(bad(wrap([2, 'en', [['hand-front-l', 0, 2], ['hand-front-l', 1, 1]]]))).toBe('invalid'); // duplicate
+      expect(bad(wrap([2, 'en', [['thenar-l', 7, 2]]]))).toBe('invalid');
+      expect(bad(wrap([2, 'en', [['thenar-l', 0, 4]]]))).toBe('invalid');
+      expect(bad(wrap([2, 'en', [['thenar-l', 0, 2, 123]]]))).toBe('invalid');
+      expect(bad(wrap([2, 'en', [['thenar-l', 0, 2, 'x'.repeat(201)]]]))).toBe('invalid');
+      expect(bad(wrap([2, 'en', [['thenar-l', 0, 2], ['thenar-l', 1, 1]]]))).toBe('invalid'); // duplicate
       expect(bad(wrap([2, 'en', [['__proto__', 0, 2]]]))).toBe('invalid');
       expect(bad(wrap([2, 'en', []]))).toBe('empty');
     });
     it('still opens old v1 links (minutes become normal time)', () => {
-      const r = decodeHash(wrap([1, 'zh', [['hand-front-l', 3, 45, 'old']]], 1));
-      expect(r).toEqual({ ok: true, lang: 'zh', selection: { 'hand-front-l': { intensity: 'deep', duration: 'normal', note: 'old' } } });
-      expect(bad(wrap([1, 'en', [['hand-front-l', 0, 2]]], 1))).toBe('invalid');
+      const r = decodeHash(wrap([1, 'zh', [['thenar-l', 3, 45, 'old']]], 1));
+      expect(r).toEqual({ ok: true, lang: 'zh', selection: { 'thenar-l': { intensity: 'deep', duration: 'normal', note: 'old' } } });
+      expect(bad(wrap([1, 'en', [['thenar-l', 0, 2]]], 1))).toBe('invalid');
+    });
+    it('expands muscle ids from the old figure', () => {
+      const r = decodeHash(wrap([1, 'en', [['quadriceps-l', 2, 30, 'knee'], ['rectus-femoris-l', 0, 15]]], 1));
+      expect(r.ok && r.selection).toEqual({
+        'rectus-femoris-l': { intensity: 'light', duration: 'normal', note: '' }, // the exact id wins
+        'vastus-lateralis-l': { intensity: 'firm', duration: 'normal', note: 'knee' },
+        'vastus-medialis-l': { intensity: 'firm', duration: 'normal', note: 'knee' },
+      });
     });
     it('does not pollute prototypes', () => {
       decodePlan(LZString.compressToEncodedURIComponent('[2,"en",[["__proto__",0,2]]]'));

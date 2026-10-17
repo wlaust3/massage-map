@@ -46,7 +46,9 @@ export function SummaryCard({ selection, t, large = false, showHeading = true }:
                 const level = INTENSITIES.indexOf(r.entry.intensity) + 1;
                 return (
                   <li key={r.key} className="summary-row">
-                    <div className="summary-name">{rowName(t, r)}</div>
+                    <div className="summary-name">
+                      {rowName(t, r)} <span className="summary-plain">{t(r.plainKey)}</span>
+                    </div>
                     <div className="summary-meta">
                       {r.entry.duration === 'none' ? (
                         <span className="chip chip-avoid">

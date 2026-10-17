@@ -70,7 +70,7 @@ describe('favorites', () => {
 
   it('renames (with validation) and deletes', () => {
     let list = must(addFavorite([], 'A', routine()));
-    list = must(addFavorite(list, 'B', toggleMuscle({}, 'hand-front-l')));
+    list = must(addFavorite(list, 'B', toggleMuscle({}, 'thenar-l')));
     const id = list[0].id;
     expect(renameFavorite(list, id, '  ', 5)).toEqual({ ok: false, error: 'emptyName' });
     expect(renameFavorite(list, 'zzz', 'C', 5)).toEqual({ ok: false, error: 'notFound' });
@@ -112,9 +112,9 @@ describe('persistence (versioned localStorage schema)', () => {
   it('drops unknown muscles inside saved favorites', () => {
     const parsed = parseFavorites({
       version: 1,
-      favorites: [{ id: 'a', name: 'n', items: { 'hand-front-l': { intensity: 'deep', duration: 'less', note: 'ok' }, 'fake-l': {} } }],
+      favorites: [{ id: 'a', name: 'n', items: { 'thenar-l': { intensity: 'deep', duration: 'less', note: 'ok' }, 'fake-l': {} } }],
     });
-    expect(Object.keys(parsed[0].items)).toEqual(['hand-front-l']);
+    expect(Object.keys(parsed[0].items)).toEqual(['thenar-l']);
   });
 
   it('reports a failed write (e.g. quota exceeded) instead of throwing', () => {

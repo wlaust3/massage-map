@@ -11,10 +11,6 @@
   --warn-text: #5c3b00;
   --sel-fill: #0f9d8a;
   --sel-stroke: #00231f;
-  --muscle-fill: #f6d7cc;
-  --muscle-stroke: #a8705f;
-  --body-fill: #dfe5ee;
-  --body-outline: #2a3342;
   --tap: 44px;
   --radius: 12px;
   --tabbar-h: 50px;
@@ -345,50 +341,41 @@ textarea:focus-visible,
   height: 100%;
 }
 .map-side {
-  font-size: 13px;
+  font-size: 9px;
   font-weight: 700;
   fill: var(--muted);
-}
-.body-outline path {
-  fill: var(--body-outline);
-  stroke: var(--body-outline);
-  stroke-width: 3.4;
-  stroke-linejoin: round;
-}
-.body-fill path {
-  fill: var(--body-fill);
-  stroke: none;
 }
 .muscle {
   outline: none;
 }
 .muscle .shape {
-  fill: var(--muscle-fill);
-  stroke: var(--muscle-stroke);
-  stroke-width: 0.9;
-  stroke-linejoin: round;
+  fill: transparent;
+  stroke: none;
   pointer-events: none;
 }
 .muscle.is-selected .shape {
   fill: var(--sel-fill);
+  fill-opacity: 0.75;
   stroke: var(--sel-stroke);
-  stroke-width: 2.4;
+  stroke-width: 0.6;
+  stroke-linejoin: round;
 }
 .muscle.is-avoid .shape {
   fill: #c62828;
   stroke: #3d0000;
-  stroke-dasharray: 3 2;
+  stroke-dasharray: 1.2 0.8;
 }
 .muscle:focus-visible .shape {
   stroke: #ff9f1a;
-  stroke-width: 3.2;
+  stroke-width: 1.2;
 }
-.details path {
-  fill: none;
-  stroke: var(--muscle-stroke);
-  stroke-width: 0.8;
-  stroke-dasharray: 2 2;
-  pointer-events: none;
+.art-credit {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  font-size: 9px;
+  color: var(--muted);
+  text-decoration: none;
 }
 .zoom-controls {
   position: absolute;
@@ -465,6 +452,17 @@ textarea:focus-visible,
   font-weight: 700;
   font-size: 0.95rem;
   margin: 0 2px 4px;
+}
+.pick-plain,
+.summary-plain {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+.summary-plain {
+  display: block;
+  font-size: 0.6em;
+  color: #333;
 }
 .pick-row {
   display: flex;

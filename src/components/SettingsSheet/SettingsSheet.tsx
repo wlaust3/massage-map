@@ -4,7 +4,7 @@ import { useI18n } from '../../i18n';
 import { noteLength, selectedIds, type Action, type Selection } from '../../state/selection';
 import { ConfirmDialog } from '../common/Dialog';
 import { Select } from '../common/Select';
-import { muscleLabel } from '../common/labels';
+import { muscleLabel, musclePlain } from '../common/labels';
 
 interface Props {
   selection: Selection;
@@ -73,7 +73,9 @@ export function SettingsSheet({ selection, dispatch, onGoMap }: Props) {
           const showNote = noteOpen.has(id) || e.note !== '';
           return (
             <li key={id} className={`pick${e.duration === 'none' ? ' is-avoid' : ''}`}>
-              <div className="pick-name">{name}</div>
+              <div className="pick-name">
+                {name} <span className="pick-plain">{musclePlain(t, id)}</span>
+              </div>
               <div className="pick-row">
                 <Select
                   label={t('intensity.label')}
