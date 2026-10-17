@@ -2,7 +2,7 @@ import { INTENSITIES } from '../../data/options';
 import type { View } from '../../data/muscles';
 import type { Params } from '../../i18n';
 import { summaryRows, countSelected, type Selection, type SummaryRow } from '../../state/selection';
-import { LevelBars } from '../common/Segmented';
+import { LevelBars } from '../common/LevelBars';
 
 type T = (key: string, params?: Params) => string;
 
@@ -48,14 +48,22 @@ export function SummaryCard({ selection, t, large = false, showHeading = true }:
                   <li key={r.key} className="summary-row">
                     <div className="summary-name">{rowName(t, r)}</div>
                     <div className="summary-meta">
-                      <span className="chip chip-strong">
-                        <LevelBars level={level} />
-                        <span className="chip-label">{t('intensity.label')}{t('common.colon')}</span>
-                        <b>{t(`intensity.${r.entry.intensity}`)}</b>
-                      </span>
-                      <span className="chip">
-                        <span aria-hidden="true">⏱</span> <b>{t(`duration.${r.entry.duration}`)}</b>
-                      </span>
+                      {r.entry.duration === 'none' ? (
+                        <span className="chip chip-avoid">
+                          <span aria-hidden="true">⛔</span> <b>{t('summary.avoid')}</b>
+                        </span>
+                      ) : (
+                        <>
+                          <span className="chip chip-strong">
+                            <LevelBars level={level} />
+                            <span className="chip-label">{t('intensity.label')}{t('common.colon')}</span>
+                            <b>{t(`intensity.${r.entry.intensity}`)}</b>
+                          </span>
+                          <span className="chip">
+                            <span aria-hidden="true">⏱</span> <b>{t(`duration.${r.entry.duration}`)}</b>
+                          </span>
+                        </>
+                      )}
                     </div>
                     {r.entry.note && (
                       <div className="summary-note">

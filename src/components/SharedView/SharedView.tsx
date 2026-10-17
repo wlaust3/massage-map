@@ -17,10 +17,12 @@ export function SharedView({ plan }: { plan: SharedPlan }) {
   const { t } = useI18n();
   const [full, setFull] = useState(false);
   const selected = new Set(Object.keys(plan.selection));
+  const avoid = new Set(Object.keys(plan.selection).filter((id) => plan.selection[id].duration === 'none'));
   return (
     <div className="app">
       <header className="app-header">
-        <h1>{t('app.title')}</h1>
+        <h1 className="sr-only">{t('app.title')}</h1>
+        <span />
         <div className="header-actions">
           <LanguageToggle />
         </div>
@@ -40,7 +42,7 @@ export function SharedView({ plan }: { plan: SharedPlan }) {
           <div className="shared-maps">
             {(['front', 'back'] as const).map((v) => (
               <figure key={v}>
-                <BodyMap view={v} selected={selected} readOnly />
+                <BodyMap view={v} selected={selected} avoid={avoid} readOnly />
                 <figcaption>{t(`view.${v}`)}</figcaption>
               </figure>
             ))}

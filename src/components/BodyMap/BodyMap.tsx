@@ -26,6 +26,8 @@ const SAMPLE_STEP = 3;
 interface Props {
   view: View;
   selected: ReadonlySet<string>;
+  /** Selected muscles marked "avoid" (drawn with a warning pattern instead of the selection fill). */
+  avoid?: ReadonlySet<string>;
   /** Interactive maps call this on a tap (null when the tap was not near any muscle). */
   onTap?: (id: string | null) => void;
   /** Swipe sideways to flip between front and back. */
@@ -40,7 +42,7 @@ interface Shape {
 
 const SILHOUETTE = [...SILHOUETTE_HALF, ...SILHOUETTE_HALF.map(mirrorPath), ...SILHOUETTE_CENTER];
 
-export function BodyMap({ view, selected, onTap, onSwipe, readOnly = false }: Props) {
+export function BodyMap({ view, selected, avoid, onTap, onSwipe, readOnly = false }: Props) {
   const { t } = useI18n();
   const muscles = useMemo(() => musclesInView(view), [view]);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -259,7 +261,7 @@ export function BodyMap({ view, selected, onTap, onSwipe, readOnly = false }: Pr
               const isSel = selected.has(m.id);
               const name = t('muscle.withSide', { name: t(m.nameKey), side: t(`side.${m.side}`) });
               const common = {
-                className: `muscle${isSel ? ' is-selected' : ''}`,
+                className: `muscle${isSel ? ' is-selected' : ''}${avoid?.has(m.id) ? ' is-avoid' : ''}`,
               };
               return readOnly ? (
                 <g key={m.id} {...common} aria-hidden="true">

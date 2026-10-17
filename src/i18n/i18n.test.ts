@@ -33,6 +33,7 @@ describe('i18n parity', () => {
       ...REGION_IDS.map((r) => `region.${r}`),
       ...INTENSITIES.map((i) => `intensity.${i}`),
       ...DURATIONS.map((d) => `duration.${d}`),
+      ...DURATIONS.map((d) => `duration.short.${d}`),
     ];
     for (const k of keys) {
       expect(k in en, `en ${k}`).toBe(true);

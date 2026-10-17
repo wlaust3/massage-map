@@ -11,7 +11,7 @@ const render = (sel: Selection, lang: 'en' | 'zh') =>
 describe('SummaryCard', () => {
   const sel = updateEntry(toggleMuscle(toggleMuscle({}, 'hamstrings-l'), 'biceps-r'), 'hamstrings-l', {
     intensity: 'deep',
-    duration: 45,
+    duration: 'extra',
     note: '避开这里，旧伤',
   });
 
@@ -20,11 +20,11 @@ describe('SummaryCard', () => {
     expect(en).toContain('Front of body');
     expect(en).toContain('Back of body');
     expect(en).toContain('Deep');
-    expect(en).toContain('45 min');
+    expect(en).toContain('Extra time');
     expect(en).toContain('Back of thigh (left)');
     const zh = render(sel, 'zh');
     expect(zh).toContain('很重');
-    expect(zh).toContain('45 分钟');
+    expect(zh).toContain('时间长一点');
     expect(zh).toContain('大腿后面（左）');
     expect(zh).toContain('避开这里，旧伤'); // note shown exactly as typed
     expect(en).toContain('避开这里，旧伤');
@@ -43,6 +43,14 @@ describe('SummaryCard', () => {
     const html = render(sel, 'en');
     expect(html).toContain('⚠');
     expect(html).toContain('Note: ');
+  });
+
+  it('shows "avoid" instead of pressure and time for areas to skip', () => {
+    const skip = updateEntry(toggleMuscle({}, 'biceps-r'), 'biceps-r', { duration: 'none' });
+    const en = render(skip, 'en');
+    expect(en).toContain('Avoid this area');
+    expect(en).not.toContain('Pressure');
+    expect(render(skip, 'zh')).toContain('这里不要按');
   });
 
   it('shows an empty state', () => {

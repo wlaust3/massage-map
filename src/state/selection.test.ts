@@ -21,7 +21,7 @@ describe('selection state', () => {
   it('toggles a muscle on (with defaults) and off', () => {
     let s: Selection = {};
     s = toggleMuscle(s, 'biceps-l');
-    expect(s['biceps-l']).toEqual({ intensity: 'medium', duration: 15, note: '' });
+    expect(s['biceps-l']).toEqual({ intensity: 'medium', duration: 'normal', note: '' });
     s = toggleMuscle(s, 'biceps-l');
     expect(countSelected(s)).toBe(0);
   });
@@ -58,11 +58,11 @@ describe('selection state', () => {
 
   it('updates intensity, duration and note; rejects invalid values', () => {
     let s = toggleMuscle({}, 'calves-r');
-    s = updateEntry(s, 'calves-r', { intensity: 'firm', duration: 45, note: 'hello' });
-    expect(s['calves-r']).toEqual({ intensity: 'firm', duration: 45, note: 'hello' });
+    s = updateEntry(s, 'calves-r', { intensity: 'firm', duration: 'extra', note: 'hello' });
+    expect(s['calves-r']).toEqual({ intensity: 'firm', duration: 'extra', note: 'hello' });
     // @ts-expect-error invalid on purpose
-    s = updateEntry(s, 'calves-r', { duration: 99, intensity: 'crushing' });
-    expect(s['calves-r']).toEqual({ intensity: 'firm', duration: 45, note: 'hello' });
+    s = updateEntry(s, 'calves-r', { duration: 'forever' as never, intensity: 'crushing' });
+    expect(s['calves-r']).toEqual({ intensity: 'firm', duration: 'extra', note: 'hello' });
     expect(updateEntry(s, 'biceps-l', { intensity: 'light' })).toBe(s); // not selected
   });
 
@@ -78,10 +78,10 @@ describe('selection state', () => {
   it('applyToAll changes intensity/duration for everything but never touches notes', () => {
     let s = toggleRegion({}, 'arms', 'front');
     s = updateEntry(s, 'biceps-l', { note: 'bruise' });
-    s = applyToAll(s, { intensity: 'light', duration: 60 });
+    s = applyToAll(s, { intensity: 'light', duration: 'less' });
     for (const e of Object.values(s)) {
       expect(e.intensity).toBe('light');
-      expect(e.duration).toBe(60);
+      expect(e.duration).toBe('less');
     }
     expect(s['biceps-l'].note).toBe('bruise');
   });
@@ -97,12 +97,12 @@ describe('selection state', () => {
   it('sanitizeSelection drops unknown ids and repairs bad values', () => {
     const s = sanitizeSelection({
       'biceps-l': { intensity: 'bogus', duration: 7, note: 5 },
-      'evil-l': { intensity: 'deep', duration: 30, note: '' },
+      'evil-l': { intensity: 'deep', duration: 'less', note: '' },
       '__proto__': { intensity: 'deep' },
       'hand-front-r': null,
     });
     expect(Object.keys(s)).toEqual(['biceps-l']);
-    expect(s['biceps-l']).toEqual({ intensity: 'medium', duration: 15, note: '' });
+    expect(s['biceps-l']).toEqual({ intensity: 'medium', duration: 'normal', note: '' });
     expect(sanitizeSelection('junk')).toEqual({});
     expect(sanitizeSelection([1, 2])).toEqual({});
   });

@@ -1,6 +1,6 @@
 # massage-map
 
-A mobile- and tablet-first, touch-first web app for telling a masseuse exactly what you want. Tap muscles or regions on a front/back muscular anatomy illustration, set **intensity** (light / medium / firm / deep) and **duration** for each, and get an at-a-glance **summary card** to show the masseuse — in **English** or **simple Chinese (简体中文)**.
+A mobile- and tablet-first, touch-first web app for telling a masseuse exactly what you want. Tap muscles or regions on a front/back muscular anatomy illustration, set **pressure** (light / medium / firm / deep) and **time** (avoid / less / normal / extra) for each, and get an at-a-glance **summary card** to show the masseuse — in **English** or **simple Chinese (简体中文)**.
 
 ## Status
 
@@ -8,8 +8,8 @@ A mobile- and tablet-first, touch-first web app for telling a masseuse exactly w
 
 **Milestone 1 is implemented** (see [docs/MILESTONE-1.md](docs/MILESTONE-1.md) and [issue #1](https://github.com/wlaust3/massage-map/issues/1)):
 
-- Front/back muscular body map (inline SVG): tap muscles one by one or pick whole areas (neck, shoulders, chest, belly, upper back, lower back, arms, hands, hips, legs, feet). Pinch-zoom, pan, swipe and a Front/Back toggle. Forgiving touch targets, fill + outline selection feedback, no hover needed.
-- Per-selection **pressure** (light / medium / firm / deep), **time** (15 / 30 / 45 / 60 min) and an optional **note** (200 characters) such as an injury. Edit one, set all at once, remove, or clear all.
+- Front/back muscular body map (inline SVG): tap muscles one by one or pick whole areas from a dropdown (neck, shoulders, chest, belly, upper back, lower back, arms, hands, hips, legs, feet). Pinch-zoom, pan, swipe and a single Front/Back toggle in the header. Forgiving touch targets, fill + outline selection feedback, no hover needed.
+- Per-selection **pressure** (light / medium / firm / deep), **time** (avoid / less / normal / extra) and an optional **note** (200 characters) such as an injury, set with compact dropdowns. "Avoid" marks an area the masseuse should not work (red on the map, "Avoid this area" on the card). Edit one, set all at once, remove, or clear all.
 - **English and Simplified Chinese** everywhere, with a toggle that is always on screen and remembered.
 - A large-type, high-contrast **summary card** grouped by front/back, with a full-screen view to hand to the masseuse.
 - **Favorites**: save, use, rename and delete named routines (including notes), stored on the device.
@@ -22,7 +22,7 @@ Not built, by design: accounts, booking, payments, other languages, a backend, a
 **No data leaves your device.** There is no server, no analytics and no network request for your data.
 
 - Your picks, notes, favorites and language choice are stored in your browser's `localStorage` only.
-- A share link contains the plan itself, compressed into the URL **fragment** (`#v1=...`). Browsers never send the fragment to a server, and this app has no backend to send it to. Whoever you give the link or QR code to can read the plan (including notes), and anyone who sees a link in a chat or log has the plan too, so share it only with people you want to see it.
+- A share link contains the plan itself, compressed into the URL **fragment** (`#v2=...`). Browsers never send the fragment to a server, and this app has no backend to send it to. Whoever you give the link or QR code to can read the plan (including notes), and anyone who sees a link in a chat or log has the plan too, so share it only with people you want to see it.
 - The QR code is drawn in your browser.
 
 ## Stack and rationale
@@ -65,9 +65,9 @@ The built `dist/` folder is a plain static site (relative asset paths), so it ca
 ## How it works
 
 - **Body map** (`src/components/BodyMap`, art in `src/assets/anatomy`): each muscle is one path with a stable id like `biceps-l` (`-l`/`-r` is the person's own left/right). Taps are handled by one Pointer Events handler on the map. A tap picks the muscle under the finger or, failing that, the nearest muscle within a 24 px radius (so every target is effectively at least 44 px wide, even tiny ones). Two fingers zoom, one finger pans when zoomed, and a sideways swipe at 1x flips front/back. The zoom buttons and the Front/Back toggle give the same actions without gestures, and every muscle is also a keyboard-focusable button.
-- **State** (`src/state`): a pure reducer over `{ muscleId: { intensity, duration, note } }`, persisted as `mm.selection` (`version: 1`). Favorites live in `mm.favorites` (`version: 1`). Both are sanitized on load, so bad or old data cannot crash the app.
+- **State** (`src/state`): a pure reducer over `{ muscleId: { intensity, duration, note } }` (`duration` is a category: `none` = avoid, `less`, `normal`, `extra`), persisted as `mm.selection` (`version: 1`). Favorites live in `mm.favorites` (`version: 1`). Both are sanitized on load, so bad or old data cannot crash the app.
 - **i18n** (`src/i18n`): `en.json` and `zh.json` with a tiny `t(key, params)` helper. A unit test enforces identical keys and placeholders.
-- **Sharing** (`src/share`): payload `[1, lang, [[muscleId, intensityIndex, minutes, note?], ...]]`, compressed by lz-string and put in `#v1=...`. Decoding validates everything (version, size limits, known ids, value ranges, note length, duplicates) and a bad link shows a friendly bilingual error.
+- **Sharing** (`src/share`): payload `[2, lang, [[muscleId, intensityIndex, durationIndex, note?], ...]]`, compressed by lz-string and put in `#v2=...`. Old `#v1=` links (minutes) still open, with every time shown as normal. Decoding validates everything (version, size limits, known ids, value ranges, note length, duplicates) and a bad link shows a friendly bilingual error.
 
 ## Project layout
 
