@@ -1,4 +1,5 @@
 export const REGION_IDS = [
+  'head',
   'neck',
   'shoulders',
   'chest',

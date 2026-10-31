@@ -11,13 +11,9 @@
   --warn-text: #5c3b00;
   --sel-fill: #0f9d8a;
   --sel-stroke: #00231f;
-  --muscle-fill: #f6d7cc;
-  --muscle-stroke: #a8705f;
-  --body-fill: #dfe5ee;
-  --body-outline: #2a3342;
   --tap: 44px;
   --radius: 12px;
-  --tabbar-h: 60px;
+  --tabbar-h: 50px;
   color-scheme: light;
 }
 
@@ -84,8 +80,8 @@ p {
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 8px 12px;
-  padding-top: max(8px, env(safe-area-inset-top));
+  padding: 6px 10px;
+  padding-top: max(6px, env(safe-area-inset-top));
   background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
@@ -94,15 +90,19 @@ p {
 }
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+}
+.view-flip {
+  min-width: 110px;
+  justify-content: flex-start;
 }
 .content {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 .content.two-col {
   display: grid;
@@ -113,7 +113,7 @@ p {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 8px;
 }
 .panel-head {
   display: flex;
@@ -129,8 +129,6 @@ p {
 
 /* ---------- buttons ---------- */
 .btn,
-.chip-btn,
-.seg-btn,
 .tab,
 .icon-btn,
 .pick-head {
@@ -166,6 +164,10 @@ p {
   border-color: var(--danger);
   color: #fff;
 }
+.btn-small {
+  padding: 4px 10px;
+  border-width: 1.5px;
+}
 .btn-danger-outline {
   border-color: var(--danger);
   color: var(--danger);
@@ -196,6 +198,62 @@ textarea:focus-visible,
 }
 .icon-btn:disabled {
   opacity: 0.4;
+}
+.icon-btn-small {
+  font-size: 1.05rem;
+  border-width: 1.5px;
+}
+.icon-btn[aria-pressed='true'] {
+  background: #eaf0fe;
+  border-color: var(--accent);
+}
+.icon-btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* ---------- compact dropdowns ---------- */
+.sel {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 0;
+  padding: 2px 8px 4px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  min-height: var(--tap);
+  justify-content: center;
+}
+.sel:focus-within {
+  outline: 3px solid #ff9f1a;
+  outline-offset: 1px;
+}
+.sel-k {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.1;
+}
+.sel select {
+  font: inherit;
+  font-weight: 700;
+  color: var(--text);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 4px center, right 0 center;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+  padding-right: 14px;
+  text-overflow: ellipsis;
+}
+.sel select:focus-visible {
+  outline: none;
 }
 
 /* ---------- tab bar ---------- */
@@ -237,45 +295,11 @@ textarea:focus-visible,
   line-height: 24px;
 }
 
-/* ---------- segmented controls ---------- */
-.seg-wrap {
-  margin: 8px 0;
-  container: seg / inline-size;
-}
+/* ---------- labels and level bars ---------- */
 .seg-label {
   display: block;
   font-weight: 700;
   margin-bottom: 4px;
-}
-.seg {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-@container seg (min-width: 440px) {
-  .seg {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.seg-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 8px;
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 10px;
-  font-weight: 600;
-}
-.seg-btn[aria-pressed='true'] {
-  background: var(--accent);
-  border-color: #061f5c;
-  color: #fff;
-  box-shadow: inset 0 0 0 2px #fff;
-}
-.seg-btn[aria-pressed='true'] .seg-text::before {
-  content: '✓ ';
 }
 .level {
   display: inline-flex;
@@ -293,14 +317,10 @@ textarea:focus-visible,
 .level i.on {
   opacity: 1;
 }
-.view-toggle .seg {
-  grid-template-columns: 1fr 1fr;
-}
-
 /* ---------- body map ---------- */
 .map-wrap {
   position: relative;
-  height: clamp(320px, 58svh, 640px);
+  height: clamp(320px, calc(100svh - 205px), 900px);
   background: linear-gradient(#fbfcfe, #eef2f8);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -321,45 +341,41 @@ textarea:focus-visible,
   height: 100%;
 }
 .map-side {
-  font-size: 13px;
+  font-size: 9px;
   font-weight: 700;
   fill: var(--muted);
-}
-.body-outline path {
-  fill: var(--body-outline);
-  stroke: var(--body-outline);
-  stroke-width: 3.4;
-  stroke-linejoin: round;
-}
-.body-fill path {
-  fill: var(--body-fill);
-  stroke: none;
 }
 .muscle {
   outline: none;
 }
 .muscle .shape {
-  fill: var(--muscle-fill);
-  stroke: var(--muscle-stroke);
-  stroke-width: 0.9;
-  stroke-linejoin: round;
+  fill: transparent;
+  stroke: none;
   pointer-events: none;
 }
 .muscle.is-selected .shape {
   fill: var(--sel-fill);
+  fill-opacity: 0.75;
   stroke: var(--sel-stroke);
-  stroke-width: 2.4;
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.muscle.is-avoid .shape {
+  fill: #c62828;
+  stroke: #3d0000;
+  stroke-dasharray: 1.2 0.8;
 }
 .muscle:focus-visible .shape {
   stroke: #ff9f1a;
-  stroke-width: 3.2;
+  stroke-width: 1.2;
 }
-.details path {
-  fill: none;
-  stroke: var(--muscle-stroke);
-  stroke-width: 0.8;
-  stroke-dasharray: 2 2;
-  pointer-events: none;
+.art-credit {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  font-size: 9px;
+  color: var(--muted);
+  text-decoration: none;
 }
 .zoom-controls {
   position: absolute;
@@ -369,46 +385,21 @@ textarea:focus-visible,
   flex-direction: column;
   gap: 8px;
 }
-.map-message {
-  min-height: 1.5em;
-  margin: 8px 0 0;
-  font-weight: 600;
-}
-.map-help {
-  margin: 4px 0 8px;
-}
-.chips {
+.map-bar {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-top: 8px;
 }
-.chip-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 24px;
+.sel-wide {
+  flex: 0 1 60%;
+}
+.map-message {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.9rem;
   font-weight: 600;
-}
-.chip-btn.state-partial {
-  border-style: dashed;
-  border-color: var(--sel-fill);
-}
-.chip-btn.state-all {
-  background: var(--sel-fill);
-  border-color: var(--sel-stroke);
-  color: #fff;
-}
-.chip-btn.state-all {
-  background: #0b6e61;
-}
-.chip-mark {
-  font-weight: 800;
-  width: 1em;
-  text-align: center;
 }
 .next-bar {
   display: flex;
@@ -424,11 +415,20 @@ textarea:focus-visible,
 
 /* ---------- settings ---------- */
 .set-all {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
   background: #f1f4fa;
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 12px;
+  padding: 6px;
+  margin-bottom: 8px;
+}
+.set-all-k {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 .pick-list {
   list-style: none;
@@ -436,42 +436,47 @@ textarea:focus-visible,
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .pick {
-  border: 2px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 10px;
   background: #fff;
+  padding: 4px 6px 6px;
 }
-.pick.is-open {
-  border-color: var(--accent);
-}
-.pick-head {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: 'name chev' 'sum chev';
-  text-align: left;
-  gap: 0 8px;
-  padding: 8px 12px;
-  background: transparent;
-  border: 0;
+.pick.is-avoid {
+  border-color: #c62828;
+  background: #fff5f5;
 }
 .pick-name {
-  grid-area: name;
   font-weight: 700;
-}
-.pick-summary {
-  grid-area: sum;
-  color: var(--muted);
   font-size: 0.95rem;
+  margin: 0 2px 4px;
 }
-.chev {
-  grid-area: chev;
-  align-self: center;
+.pick-plain,
+.summary-plain {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.85em;
 }
-.pick-body {
-  padding: 0 12px 12px;
+.summary-plain {
+  display: block;
+  font-size: 0.6em;
+  color: #333;
+}
+.pick-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.pick-row .icon-btn {
+  flex: none;
+}
+.pick-note {
+  margin-top: 6px;
+}
+.pick-note textarea {
+  padding: 6px 8px;
 }
 .field {
   display: block;
@@ -580,6 +585,11 @@ textarea {
   border-radius: 8px;
   background: #fff;
   font-size: 1.1em;
+}
+.chip-avoid {
+  background: #ffe1e1;
+  border-color: #7a0000;
+  color: #7a0000;
 }
 .chip-strong {
   background: #fff7c2;
@@ -773,9 +783,7 @@ textarea {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .btn,
-  .seg-btn,
-  .chip-btn {
+  .btn {
     transition: background-color 0.12s, border-color 0.12s;
   }
 }

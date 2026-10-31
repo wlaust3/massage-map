@@ -7,10 +7,9 @@ import { ShareSheet } from './components/ShareSheet/ShareSheet';
 import { SharedError, SharedView } from './components/SharedView/SharedView';
 import { FullscreenSummary } from './components/SummaryCard/FullscreenSummary';
 import { SummaryCard } from './components/SummaryCard/SummaryCard';
-import { Segmented } from './components/common/Segmented';
-import { muscleLabel } from './components/common/labels';
+import { muscleLabel, musclePlain } from './components/common/labels';
 import { MUSCLE_BY_ID, regionsInView, type View } from './data/muscles';
-import { REGION_IDS, regionNameKey } from './data/regions';
+import { REGION_IDS, regionNameKey, type RegionId } from './data/regions';
 import { LanguageProvider, useI18n } from './i18n';
 import { decodeHash, looksLikeShareHash } from './share/codec';
 import { countSelected, isSelected, regionState } from './state/selection';
@@ -41,6 +40,7 @@ function Planner() {
   const [dialog, setDialog] = useState<null | 'fav' | 'share' | 'full'>(null);
   const count = countSelected(selection);
   const selectedSet = useMemo(() => new Set(Object.keys(selection)), [selection]);
+  const avoidSet = useMemo(() => new Set(Object.keys(selection).filter((id) => selection[id].duration === 'none')), [selection]);
 
   // On wide screens the map and settings share one screen.
   const activeTab: Tab = wide && tab === 'picks' ? 'map' : tab;
@@ -50,7 +50,7 @@ function Planner() {
 
   const onTap = (id: string | null) => {
     if (!id || !MUSCLE_BY_ID.has(id)) return setMessage(t('map.nothingHere'));
-    const name = muscleLabel(t, id);
+    const name = `${muscleLabel(t, id)} · ${musclePlain(t, id)}`;
     setMessage(t(isSelected(selection, id) ? 'map.removed' : 'map.selected', { name }));
     dispatch({ type: 'toggle', id });
   };
@@ -60,46 +60,34 @@ function Planner() {
 
   const mapPanel = (
     <section className="panel map-panel" aria-label={t('tab.map')}>
-      <Segmented
-        label={t('view.toggleLabel')}
-        className="view-toggle"
-        value={view}
-        onChange={setView}
-        options={[
-          { value: 'front', label: t('view.front') },
-          { value: 'back', label: t('view.back') },
-        ]}
-      />
-      <p className="muted small map-help">{t('map.instructions')}</p>
-      <BodyMap view={view} selected={selectedSet} onTap={onTap} onSwipe={flip} />
-      <p className="map-message" role="status" aria-live="polite">
-        {message}
-      </p>
-      <h2 className="regions-title">{t('regions.title')}</h2>
-      <p className="muted small">{t('regions.hint')}</p>
-      <div className="chips" role="group" aria-label={t('regions.title')}>
-        {regions.map((r) => {
-          const s = regionState(selection, r, view);
-          const name = t(regionNameKey(r));
-          return (
-            <button
-              key={r}
-              type="button"
-              className={`chip-btn state-${s}`}
-              aria-pressed={s === 'all' ? true : s === 'partial' ? 'mixed' : false}
-              onClick={() => {
-                dispatch({ type: 'toggleRegion', region: r, view });
-                setMessage('');
-              }}
-            >
-              <span className="chip-mark" aria-hidden="true">
-                {s === 'all' ? '✓' : s === 'partial' ? '–' : '+'}
-              </span>
-              {name}
-              <span className="sr-only">, {stateLabel(s)}</span>
-            </button>
-          );
-        })}
+      <BodyMap view={view} selected={selectedSet} avoid={avoidSet} onTap={onTap} onSwipe={flip} />
+      <div className="map-bar">
+        <label className="sel sel-wide">
+          <span className="sel-k">{t('regions.title')}</span>
+          <select
+            value=""
+            onChange={(e) => {
+              const r = e.target.value as RegionId;
+              if (!r) return;
+              dispatch({ type: 'toggleRegion', region: r, view });
+              setMessage(t(regionState(selection, r, view) === 'all' ? 'map.removed' : 'map.selected', { name: t(regionNameKey(r)) }));
+            }}
+          >
+            <option value="">{t('regions.pick')}</option>
+            {regions.map((r) => {
+              const s = regionState(selection, r, view);
+              return (
+                <option key={r} value={r}>
+                  {s === 'all' ? '✓ ' : s === 'partial' ? '– ' : ''}
+                  {t(regionNameKey(r))} ({stateLabel(s)})
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <p className="map-message" role="status" aria-live="polite">
+          {message}
+        </p>
       </div>
       {count > 0 && !wide && (
         <div className="next-bar">
@@ -123,9 +111,6 @@ function Planner() {
         <button type="button" className="btn" onClick={() => setDialog('share')} disabled={count === 0}>
           {t('share.open')}
         </button>
-        <button type="button" className="btn" onClick={() => setDialog('fav')}>
-          ★ {t('fav.open')}
-        </button>
       </div>
       <SummaryCard selection={selection} t={t} />
     </>
@@ -134,10 +119,22 @@ function Planner() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>{t('app.title')}</h1>
+        <h1 className="sr-only">{t('app.title')}</h1>
+        {activeTab === 'map' ? (
+          <button
+            type="button"
+            className="btn btn-small view-flip"
+            onClick={flip}
+            aria-label={t('view.flipLabel', { view: t(`view.${view}`) })}
+          >
+            <span aria-hidden="true">⇄</span> {t(`view.${view}`)}
+          </button>
+        ) : (
+          <span />
+        )}
         <div className="header-actions">
-          <button type="button" className="btn" onClick={() => setDialog('fav')}>
-            <span aria-hidden="true">★</span> {t('fav.open')}
+          <button type="button" className="btn btn-small" onClick={() => setDialog('fav')} aria-label={t('fav.open')}>
+            <span aria-hidden="true">★</span>
           </button>
           <LanguageToggle />
         </div>

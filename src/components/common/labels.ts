@@ -9,3 +9,9 @@ export function muscleLabel(t: T, id: string): string {
   if (!m) return id;
   return t('muscle.withSide', { name: t(m.nameKey), side: t(`side.${m.side}`) });
 }
+
+/** Everyday description of a muscle id, e.g. "Front of upper arm". */
+export function musclePlain(t: T, id: string): string {
+  const m = MUSCLE_BY_ID.get(id);
+  return m ? t(m.plainKey) : '';
+}

@@ -7,7 +7,7 @@ A touch-first web app: pick muscles/regions on a front/back anatomy SVG, set int
 Full details and acceptance criteria: [MILESTONE-1.md](MILESTONE-1.md).
 
 1. **Body map** — front/back muscular anatomy SVG; select individual muscles or broader regions; touch-tuned (big, forgiving hit areas, clear selection feedback, no hover); front/back toggle plus pinch-zoom/swipe.
-2. **Per-selection settings** — intensity (light / medium / firm / deep) and duration (e.g. 15 / 30 / 45 / 60 min), editable and removable.
+2. **Per-selection settings** — intensity (light / medium / firm / deep) and time category (avoid / less / normal / extra; was minutes until the compact-UI change), editable and removable.
 3. **Bilingual UI** — English and Simplified Chinese everywhere, with a persisted language toggle. Chinese must be short, plain, everyday wording a masseuse can read easily.
 4. **Summary card** — large, high-contrast, grouped by body side, in the chosen language, with a full-screen view. Also shows each selection's note.
 5. **Favorites** — save the current routine (selections, intensities, durations, notes) under a name; load in one tap; rename; delete. Stored locally.
@@ -61,6 +61,8 @@ src/
 ```
 
 ## Anatomy art note
+**Current art (2026-10-17):** “Muscles front and back” (OpenStax, Tomáš Kebert & umimeto.org), **CC BY-SA 4.0**, approved by Bill despite the share-alike terms. The art files are CC BY-SA; the code stays MIT. See `src/assets/anatomy/ATTRIBUTION.md` and `tools/anatomy/README.md`. The original guidance follows.
+
 Use an **open (CC0 / public domain / CC-BY) illustration or draw your own SVG**. Do not use copyrighted anatomy art. Record the source, author, license, and any modifications in `src/assets/anatomy/ATTRIBUTION.md` (and mention it in the README) before merging art. Each muscle must be its own SVG path/group with a stable id (e.g. `trapezius-upper`), mapped to a region and to an i18n key.
 
 ## Definition of done for a PR
@@ -68,7 +70,7 @@ Builds in CI, tests pass (i18n key parity, selection state, favorites, share enc
 
 ## Status (after the Milestone 1 PR)
 Everything in scope above is implemented. For the next agent:
-- **Muscle ids are part of the saved/shared data format** (`mm.selection`, `mm.favorites`, `#v1=` links). Renaming or removing an id breaks old favorites and links. Add new muscles freely; if you must change the format, bump the schema/share version and keep a decoder for the old one.
-- Hands and feet exist on both views and have distinct ids (`hand-front-l`, `hand-back-l`, `foot-front-l`, `foot-back-l`).
+- **Muscle ids are part of the saved/shared data format** (`mm.selection`, `mm.favorites`, `#v1=`/`#v2=` links). Renaming or removing an id breaks old favorites and links. Add new muscles freely; if you must change the format, bump the schema/share version and keep a decoder for the old one.
+- Muscles now have anatomical ids (e.g. `biceps-brachii-l`). Ids from the first hand-drawn figure are mapped in `LEGACY_BASES` (`src/data/muscles.ts`) so old favorites and links still load. A muscle can be tappable on both views (e.g. upper trapezius, gracilis).
 - Sharing is limited by QR capacity. `src/share/qr.ts` warns above QR version 22.
 - Possible follow-ups (open issues, don't fold them into unrelated work): native-speaker review of `zh.json`; an artist or open-licensed anatomy upgrade; soles of feet and scalp; an in-app way to import a shared plan as a favorite; Playwright end-to-end tests in CI.

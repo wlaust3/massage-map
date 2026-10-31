@@ -7,7 +7,7 @@ import {
   type Duration,
   type Intensity,
 } from '../data/options';
-import { MUSCLES, MUSCLE_BY_ID, musclesInRegion, type Muscle, type Side, type View } from '../data/muscles';
+import { MUSCLES, MUSCLE_BY_ID, musclesInRegion, resolveMuscleId, type Muscle, type Side, type View } from '../data/muscles';
 import type { RegionId } from '../data/regions';
 
 export interface Entry {
@@ -134,21 +134,26 @@ export function selectionReducer(sel: Selection, a: Action): Selection {
   }
 }
 
-/** Defensive parse of untrusted/persisted data: unknown ids and bad values are dropped or defaulted. */
+/**
+ * Defensive parse of untrusted/persisted data: unknown ids and bad values are dropped or defaulted. Ids from the old
+ * hand-drawn figure are expanded to the muscles that now cover the same area.
+ */
 export function sanitizeSelection(raw: unknown): Selection {
   const out: Selection = {};
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
   const src = raw as Record<string, unknown>;
-  for (const m of MUSCLES) {
-    if (!Object.prototype.hasOwnProperty.call(src, m.id)) continue;
-    const e = src[m.id];
+  for (const key of Object.keys(src)) {
+    const e = src[key];
     if (!e || typeof e !== 'object') continue;
     const r = e as Record<string, unknown>;
-    out[m.id] = {
-      intensity: isIntensity(r.intensity) ? r.intensity : DEFAULT_INTENSITY,
-      duration: isDuration(r.duration) ? r.duration : DEFAULT_DURATION,
-      note: typeof r.note === 'string' ? clampNote(r.note) : '',
-    };
+    for (const id of resolveMuscleId(key)) {
+      if (isSelected(out, id) && !MUSCLE_BY_ID.has(key)) continue; // an exact id beats a legacy expansion
+      out[id] = {
+        intensity: isIntensity(r.intensity) ? r.intensity : DEFAULT_INTENSITY,
+        duration: isDuration(r.duration) ? r.duration : DEFAULT_DURATION,
+        note: typeof r.note === 'string' ? clampNote(r.note) : '',
+      };
+    }
   }
   return out;
 }
@@ -171,6 +176,7 @@ export interface SummaryRow {
   key: string;
   base: string;
   nameKey: string;
+  plainKey: string;
   /** 'both' when the left and right muscle are selected with identical settings */
   sides: 'both' | Side;
   entry: Entry;
@@ -187,9 +193,9 @@ export function summaryRows(sel: Selection): Record<View, SummaryRow[]> {
     const me = mate && isSelected(sel, mate.id) ? sel[mate.id] : undefined;
     if (mate && me && me.intensity === e.intensity && me.duration === e.duration && me.note === e.note) {
       done.add(mate.id);
-      rows[m.view].push({ key: `${m.view}:${m.base}`, base: m.base, nameKey: m.nameKey, sides: 'both', entry: e });
+      rows[m.view].push({ key: `${m.view}:${m.base}`, base: m.base, nameKey: m.nameKey, plainKey: m.plainKey, sides: 'both', entry: e });
     } else {
-      rows[m.view].push({ key: m.id, base: m.base, nameKey: m.nameKey, sides: m.side, entry: e });
+      rows[m.view].push({ key: m.id, base: m.base, nameKey: m.nameKey, plainKey: m.plainKey, sides: m.side, entry: e });
     }
   }
   return rows;
